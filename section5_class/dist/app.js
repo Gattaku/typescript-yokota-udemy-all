@@ -84,4 +84,38 @@ const employee1 = Department.createEmployee("Max");
 console.log(employee1);
 const accounting = new Accounting("d2", []);
 accounting.describe();
+//シングルトーンパターン
+class Human {
+    constructor(id, name) {
+        this.id = id;
+        this.name = name;
+    }
+    getAnimal() {
+        console.log("私は人間です");
+    }
+    getName() {
+        console.log("名前は" + this.name + "です。");
+    }
+}
+class Ogt extends Human {
+    constructor(id, name, firstName) {
+        super(id, name);
+        this.firstName = firstName;
+    }
+    getName() {
+        console.log(`私の名前は${this.name} ${this.firstName}です。`);
+    }
+    static getInstance() {
+        if (Ogt.instance)
+            return this.instance;
+        this.instance = new Ogt("1498699", "Ogata", "Kazuyoshi");
+        return this.instance;
+    }
+}
+const human1 = new Human("1", "AKB");
+human1.getAnimal();
+human1.getName();
+// const ogata = new Ogt("1498699", "Ogata", "Kazuyoshi");
+// ogata.getName();
+const ogata = Ogt.getInstance();
 //# sourceMappingURL=app.js.map

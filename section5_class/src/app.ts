@@ -89,3 +89,41 @@ console.log(employee1);
 
 const accounting = new Accounting("d2", [])
 accounting.describe();
+
+
+//シングルトーンパターン
+class Human {
+    constructor(protected id: string, protected name: string) {
+
+    }
+    getAnimal() {
+        console.log("私は人間です");
+    }
+    getName() {
+        console.log("名前は" + this.name + "です。");
+    }
+}
+
+class Ogt extends Human {
+    private static instance: Ogt;
+    private constructor(id: string, name: string, private firstName: string) {
+        super(id, name);
+    }
+    getName() {
+        console.log(`私の名前は${this.name} ${this.firstName}です。`)
+    }
+
+    static getInstance() {
+        if (Ogt.instance) return this.instance;
+        this.instance = new Ogt("1498699", "Ogata", "Kazuyoshi");
+        return this.instance;
+    }
+}
+
+const human1 = new Human("1", "AKB");
+human1.getAnimal();
+human1.getName();
+
+// const ogata = new Ogt("1498699", "Ogata", "Kazuyoshi");
+// ogata.getName();
+const ogata = Ogt.getInstance();
