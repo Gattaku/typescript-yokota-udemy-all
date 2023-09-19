@@ -45,3 +45,5 @@
 ・tsconfig.json で、「①ES6②experimentdecorateor true」になっている必要あり。
 
 ・デコレーターは Class が定義された際に実行される。インスタンス化した際に実行するようにしたい場合は、デコレーターの中で新しいクラスを返すことで実施で来る。
+
+・Autobind、Validation のデコレータ例を作成。正直よくわからない。

@@ -9,11 +9,17 @@ function Logger(text: string) {
 
 function WithTemplete(template: string, hookId: string) {
     console.log("withTemplateファクトリー");
-    return function (_: Function) {
-        console.log("templateを表示");
-        const hookElement = document.getElementById(hookId);
-        if (hookElement) {
-            hookElement.innerHTML = template;
+    return function <T extends { new(...arg: any[]): { name: string } }>(originalConstructor: T) {
+        return class extends originalConstructor {
+            constructor(..._: any[]) {
+                super();
+                console.log("templateを表示");
+                const hookElement = document.getElementById(hookId);
+                if (hookElement) {
+                    hookElement.innerHTML = template;
+                    hookElement.querySelector("h1")!.textContent = this.name;
+                }
+            }
         }
     }
 }
@@ -83,3 +89,107 @@ class Product {
 }
 
 const test1 = new Product("nomu", 100);
+
+function Autobind(target: any, methodName: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value;
+    const adjDescriptor: PropertyDescriptor = {
+        configurable: true,
+        enumerable: true,
+        get() {
+            const boundFn = originalMethod.bind(this);
+            return boundFn;
+        }
+    }
+    return adjDescriptor
+}
+
+class Printer {
+    message = "クリックしました";
+
+    @Autobind
+    showMessage() {
+        console.log(this.message);
+    }
+}
+
+const p = new Printer();
+
+const button = document.querySelector("button")!;
+button.addEventListener("click", p.showMessage);
+
+
+
+interface ValidatorConfig {
+    [prop: string]: {
+        [validatableProp: string]: string[] //["required", "positive"]
+    }
+}
+
+const registerdValidators: ValidatorConfig = {
+
+}
+
+function Required(target: any, propName: string) {
+    registerdValidators[target.constructor.name] = {
+        ...registerdValidators[target.constructor.name],
+        [propName]: ["required"],
+    }
+}
+
+function PositiveNumber(target: any, propName: string) {
+    registerdValidators[target.constructor.name] = {
+        ...registerdValidators[target.constructor.name],
+        [propName]: ["positive"],
+    }
+}
+
+function validate(obj: any) {
+    const objValidatorConfig = registerdValidators[obj.constructor.name];
+    if (!objValidatorConfig) {
+        return true;
+    }
+    let isValid = true;
+    for (const prop in objValidatorConfig) {
+        for (const validator of objValidatorConfig[prop]) {
+            switch (validator) {
+                case "require":
+                    isValid = isValid && !!obj[prop];
+                    break;
+                case "positive":
+                    isValid = isValid && obj[prop] > 0;
+                    break;
+            }
+        }
+    }
+    return isValid;
+
+}
+
+class Course {
+    @Required
+    title: string;
+    @PositiveNumber
+    price: number;
+
+    constructor(t: string, p: number) {
+        this.title = t;
+        this.price = p;
+    }
+}
+
+const courseForm = document.querySelector("form")!;
+courseForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const titleEl = document.getElementById("title") as HTMLInputElement;
+    const priceEl = document.getElementById("price") as HTMLInputElement;
+
+    const title = titleEl.value;
+    const price = +priceEl.value;
+
+    const createdCourse = new Course(title, price);
+
+    if (!validate(createdCourse)) {
+        throw new Error("入力が正しくありません");
+    }
+    console.log(createdCourse);
+})
