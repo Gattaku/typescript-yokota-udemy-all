@@ -18,12 +18,18 @@ function Logger(text) {
 }
 function WithTemplete(template, hookId) {
     console.log("withTemplateファクトリー");
-    return function (_) {
-        console.log("templateを表示");
-        const hookElement = document.getElementById(hookId);
-        if (hookElement) {
-            hookElement.innerHTML = template;
-        }
+    return function (originalConstructor) {
+        return class extends originalConstructor {
+            constructor(..._) {
+                super();
+                console.log("templateを表示");
+                const hookElement = document.getElementById(hookId);
+                if (hookElement) {
+                    hookElement.innerHTML = template;
+                    hookElement.querySelector("h1").textContent = this.name;
+                }
+            }
+        };
     };
 }
 let Person = class Person {
@@ -88,4 +94,82 @@ __decorate([
     __param(0, Log4)
 ], Product.prototype, "getPriceWithTax", null);
 const test1 = new Product("nomu", 100);
+function Autobind(target, methodName, descriptor) {
+    const originalMethod = descriptor.value;
+    const adjDescriptor = {
+        configurable: true,
+        enumerable: true,
+        get() {
+            const boundFn = originalMethod.bind(this);
+            return boundFn;
+        }
+    };
+    return adjDescriptor;
+}
+class Printer {
+    constructor() {
+        this.message = "クリックしました";
+    }
+    showMessage() {
+        console.log(this.message);
+    }
+}
+__decorate([
+    Autobind
+], Printer.prototype, "showMessage", null);
+const p = new Printer();
+const button = document.querySelector("button");
+button.addEventListener("click", p.showMessage);
+const registerdValidators = {};
+function Required(target, propName) {
+    registerdValidators[target.constructor.name] = Object.assign(Object.assign({}, registerdValidators[target.constructor.name]), { [propName]: ["required"] });
+}
+function PositiveNumber(target, propName) {
+    registerdValidators[target.constructor.name] = Object.assign(Object.assign({}, registerdValidators[target.constructor.name]), { [propName]: ["positive"] });
+}
+function validate(obj) {
+    const objValidatorConfig = registerdValidators[obj.constructor.name];
+    if (!objValidatorConfig) {
+        return true;
+    }
+    let isValid = true;
+    for (const prop in objValidatorConfig) {
+        for (const validator of objValidatorConfig[prop]) {
+            switch (validator) {
+                case "require":
+                    isValid = isValid && !!obj[prop];
+                    break;
+                case "positive":
+                    isValid = isValid && obj[prop] > 0;
+                    break;
+            }
+        }
+    }
+    return isValid;
+}
+class Course {
+    constructor(t, p) {
+        this.title = t;
+        this.price = p;
+    }
+}
+__decorate([
+    Required
+], Course.prototype, "title", void 0);
+__decorate([
+    PositiveNumber
+], Course.prototype, "price", void 0);
+const courseForm = document.querySelector("form");
+courseForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const titleEl = document.getElementById("title");
+    const priceEl = document.getElementById("price");
+    const title = titleEl.value;
+    const price = +priceEl.value;
+    const createdCourse = new Course(title, price);
+    if (!validate(createdCourse)) {
+        throw new Error("入力が正しくありません");
+    }
+    console.log(createdCourse);
+});
 //# sourceMappingURL=app.js.map
