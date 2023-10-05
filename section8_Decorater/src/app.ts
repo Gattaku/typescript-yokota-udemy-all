@@ -1,3 +1,5 @@
+//test company-account-push
+
 function Logger(text: string) {
     console.log("Loggerファクトリー");
     const innerFunc = (constructor: Function) => {
