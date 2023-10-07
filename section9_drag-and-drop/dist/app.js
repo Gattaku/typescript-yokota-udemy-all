@@ -45,10 +45,20 @@ class ProjectState extends State {
         this.projects.push(newProject);
         // console.log(this.listener);
         // console.log(this.projects);
-        this.listener[0](this.projects.slice()); //listnerFnの中には同じアロー関数が入っている。（なぜか元のconstructorが２回走るため）そのため、呼び出しは１回で十分なので、forloopは不要
-        // for (const listenerFn of this.listener) {
-        //     listenerFn(this.projects.slice());
-        // }
+        this.updateListener();
+    }
+    moveProject(projectId, newStatus) {
+        const project = this.projects.find(prj => prj.id === projectId);
+        if (project && project.status !== newStatus) {
+            project.status = newStatus;
+            // console.log(this.projects)
+            this.updateListener();
+        }
+    }
+    updateListener() {
+        for (const listenerFn of this.listener) { //listnerの中には、active / finished それぞれのアロー関数が入っている
+            listenerFn(this.projects.slice());
+        }
     }
 }
 const projectState = ProjectState.getInstance();
@@ -101,19 +111,43 @@ class Component {
 }
 //Project Item class
 class ProjectItem extends Component {
+    get manday() {
+        if (this.project.manday < 20) {
+            return this.project.manday.toString() + "人日";
+        }
+        else {
+            return (this.project.manday / 20).toString() + "人月";
+        }
+    }
     constructor(hostId, project) {
         super("single-project", hostId, false, project.id);
         this.project = project;
         this.configure();
         this.renderContent();
     }
-    configure() { }
+    dragStartHandler(event) {
+        event.dataTransfer.setData("text/plain", this.project.id);
+        event.dataTransfer.effectAllowed = "move";
+    }
+    dragEndHandler(_) {
+        console.log("Drag終了");
+    }
+    configure() {
+        this.element.addEventListener("dragstart", this.dragStartHandler);
+        this.element.addEventListener("dragend", this.dragEndHandler);
+    }
     renderContent() {
         this.element.querySelector("h2").textContent = this.project.title;
-        this.element.querySelector("h3").textContent = this.project.manday.toString();
+        this.element.querySelector("h3").textContent = this.manday; //プロパティとしてアクセスしているが、実際はgetter関数が呼ばれて処理される。
         this.element.querySelector("p").textContent = this.project.description;
     }
 }
+__decorate([
+    autobind
+], ProjectItem.prototype, "dragStartHandler", null);
+__decorate([
+    autobind
+], ProjectItem.prototype, "dragEndHandler", null);
 // ProjectList Class
 class ProjectList extends Component {
     constructor(type) {
@@ -123,12 +157,32 @@ class ProjectList extends Component {
         this.configure();
         this.renderContent();
     }
+    dragOverHandler(event) {
+        if (event.dataTransfer && event.dataTransfer.types[0] === "text/plain") {
+            event.preventDefault();
+            const listEl = this.element.querySelector("ul");
+            listEl.classList.add("droppable");
+        }
+    }
+    dropHandler(event) {
+        const pjtId = event.dataTransfer.getData("text/plain");
+        projectState.moveProject(pjtId, this.type === "active" ? ProjectStatus.Active : ProjectStatus.Finished);
+    }
+    dragLeaveHandler(_) {
+        const listEl = this.element.querySelector("ul");
+        listEl.classList.remove("droppable");
+    }
     configure() {
+        this.element.addEventListener("dragover", this.dragOverHandler);
+        this.element.addEventListener("drop", this.dropHandler);
+        this.element.addEventListener("dragleave", this.dragLeaveHandler);
         projectState.addListener((projects) => {
-            // console.log("projectListのconstructorです。")
+            console.log("projectListのconstructorです。");
+            console.log(projects);
             const relevantProject = projects.filter(prj => {
                 if (this.type === "active")
                     return prj.status === ProjectStatus.Active;
+                console.log("finishedのレンダリング");
                 return prj.status === ProjectStatus.Finished;
             });
             this.assignedProject = relevantProject;
@@ -152,6 +206,15 @@ class ProjectList extends Component {
         }
     }
 }
+__decorate([
+    autobind
+], ProjectList.prototype, "dragOverHandler", null);
+__decorate([
+    autobind
+], ProjectList.prototype, "dropHandler", null);
+__decorate([
+    autobind
+], ProjectList.prototype, "dragLeaveHandler", null);
 // ProjectInput Class
 class ProjectInput extends Component {
     constructor() {

@@ -1,3 +1,17 @@
+//Drag & Drop
+interface Draggable {
+    dragStartHandler(event: DragEvent):void;
+    dragEndHandler(event:DragEvent):void;
+}
+
+interface DragTarget {
+    dragOverHandler(event:DragEvent):void;
+    dropHandler(event:DragEvent):void;
+    dragLeaveHandler(event:DragEvent):void;
+
+}
+
+
 enum ProjectStatus {
     Active, Finished
 }
@@ -54,10 +68,22 @@ class ProjectState extends State<Project>{
         this.projects.push(newProject);
         // console.log(this.listener);
         // console.log(this.projects);
-        this.listener[0](this.projects.slice()); //listnerFnの中には同じアロー関数が入っている。（なぜか元のconstructorが２回走るため）そのため、呼び出しは１回で十分なので、forloopは不要
-        // for (const listenerFn of this.listener) {
-        //     listenerFn(this.projects.slice());
-        // }
+        this.updateListener();
+    }
+
+    moveProject(projectId: string, newStatus: ProjectStatus){
+        const project = this.projects.find(prj => prj.id === projectId);
+        if (project && project.status !== newStatus) {
+            project.status = newStatus;
+            // console.log(this.projects)
+            this.updateListener();
+        }
+    }
+
+    private updateListener () {
+        for (const listenerFn of this.listener) { //listnerの中には、active / finished それぞれのアロー関数が入っている
+            listenerFn(this.projects.slice());
+        }
     }
 } 
 
@@ -138,8 +164,17 @@ abstract class Component<T extends HTMLElement,U extends HTMLElement> {
 }
 
 //Project Item class
-class ProjectItem extends Component<HTMLUListElement,HTMLLIElement> {
+class ProjectItem extends Component<HTMLUListElement,HTMLLIElement> implements Draggable{
     private project:Project;
+
+    get manday(){
+        if (this.project.manday < 20) {
+            return this.project.manday.toString() + "人日";
+        } else {
+            return (this.project.manday/20).toString()+ "人月";
+        }
+    }
+
     constructor(hostId:string,project:Project){
         super("single-project",hostId,false,project.id);
         this.project = project;
@@ -147,10 +182,25 @@ class ProjectItem extends Component<HTMLUListElement,HTMLLIElement> {
         this.configure();
         this.renderContent();
     }
-    configure(){}
+
+    @autobind
+    dragStartHandler(event: DragEvent) {
+        event.dataTransfer!.setData("text/plain",this.project.id);
+        event.dataTransfer!.effectAllowed = "move";
+    }
+    
+    @autobind
+    dragEndHandler(_: DragEvent){
+        console.log("Drag終了");
+    }
+
+    configure(){
+        this.element.addEventListener("dragstart",this.dragStartHandler);
+        this.element.addEventListener("dragend",this.dragEndHandler);
+    }
     renderContent(){
         this.element.querySelector("h2")!.textContent = this.project.title;
-        this.element.querySelector("h3")!.textContent = this.project.manday.toString();
+        this.element.querySelector("h3")!.textContent = this.manday; //プロパティとしてアクセスしているが、実際はgetter関数が呼ばれて処理される。
         this.element.querySelector("p")!.textContent = this.project.description;
         
     }
@@ -159,7 +209,7 @@ class ProjectItem extends Component<HTMLUListElement,HTMLLIElement> {
 
 
 // ProjectList Class
-class ProjectList extends Component<HTMLDivElement, HTMLElement> {
+class ProjectList extends Component<HTMLDivElement, HTMLElement> implements DragTarget{
     assignedProject: Project[];
     constructor(private type: "active" | "finished") {
         super("project-list","app",false,`${type}-projects`);
@@ -169,11 +219,43 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
         this.renderContent();
     }
 
+    @autobind
+    dragOverHandler(event: DragEvent){
+        if (event.dataTransfer && event.dataTransfer.types[0] === "text/plain"){
+            event.preventDefault();
+            const listEl = this.element.querySelector("ul")!;
+            listEl.classList.add("droppable");
+        }
+
+    }
+
+    @autobind
+    dropHandler(event: DragEvent){
+        const pjtId = event.dataTransfer!.getData("text/plain");
+        projectState.moveProject(pjtId,this.type === "active" ? ProjectStatus.Active : ProjectStatus.Finished)
+    }
+    
+    @autobind
+    dragLeaveHandler(_: DragEvent){
+        const listEl = this.element.querySelector("ul")!;
+        listEl.classList.remove("droppable");
+    }
+
+    
+
     configure() {
+        this.element.addEventListener("dragover", this.dragOverHandler);
+        this.element.addEventListener("drop", this.dropHandler);
+        this.element.addEventListener("dragleave", this.dragLeaveHandler);
+
+
+
         projectState.addListener((projects:Project[])=>{ //projectListのインスタンスを作成した際に、この引数のアロー関数自体をprojectstateクラスのListenern配列に登録することで、addProjectメソッドが走るたびにここのアロー関数がよびだされる。
-            // console.log("projectListのconstructorです。")
+            console.log("projectListのconstructorです。")
+            console.log(projects)
             const relevantProject = projects.filter(prj => {
                 if (this.type === "active") return prj.status === ProjectStatus.Active
+                console.log("finishedのレンダリング")
                 return prj.status === ProjectStatus.Finished;
             })
             this.assignedProject = relevantProject;
