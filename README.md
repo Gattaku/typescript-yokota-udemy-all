@@ -55,3 +55,17 @@
 ・Object指向で、クラスを使用している
 
 ・Projectが追加された、場所を変更された状態を管理する方法が上手い。レンダリングできるようにListenerとして関数をConstructorの中で渡しておいて、再度走るようにしている
+
+## Section10 namespace & ES module
+
+・namespaceでは同じAppというnamespaceでくくってあげることによって、export した関数や変数クラスなどを利用できる。
+
+・依存関係の登録には [/// <reference path="ファイル名"/>]でインポートしてあげる。これはTypescript独自が理解できる
+
+・分割したnamespaceはTypescriptでのみ理解されるため、Jsコンパイル時には１つのファイルにバンドルする必要がある。
+
+　そのため、tsconfig.jsonの「outFile」をOnにして階層、ファイルを指定すること
+
+・Object指向で、クラスを使用している
+
+・Projectが追加された、場所を変更された状態を管理する方法が上手い。レンダリングできるようにListenerとして関数をConstructorの中で渡しておいて、再度走るようにしている
