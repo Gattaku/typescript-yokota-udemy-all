@@ -84,4 +84,6 @@
 
 ## Section11 webpack
 
-・
+・特徴「① バンドルの生成で、HTTP リクエストを少なくする。② ミニファイされたコードになる ③ ビルドステップを簡単にカスタマイズ。例えば開発サーバーなど」
+
+・インストールしたもの「webpack / webpack-cli / webpack-dev-server / typescript / ts-loader 」
