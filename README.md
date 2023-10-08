@@ -50,22 +50,34 @@
 
 ## Section9 Drag & Drop
 
-・Drag & Dropの基礎が入っている
+・Drag & Drop の基礎が入っている
 
-・Object指向で、クラスを使用している
+・Object 指向で、クラスを使用している
 
-・Projectが追加された、場所を変更された状態を管理する方法が上手い。レンダリングできるようにListenerとして関数をConstructorの中で渡しておいて、再度走るようにしている
+・Project が追加された、場所を変更された状態を管理する方法が上手い。レンダリングできるように Listener として関数を Constructor の中で渡しておいて、再度走るようにしている
 
 ## Section10 namespace & ES module
 
-・namespaceでは同じAppというnamespaceでくくってあげることによって、export した関数や変数クラスなどを利用できる。
+🔸namespace
 
-・依存関係の登録には [/// <reference path="ファイル名"/>]でインポートしてあげる。これはTypescript独自が理解できる
+・namespace では同じ App という namespace でくくってあげることによって、export した関数や変数クラスなどを利用できる。
 
-・分割したnamespaceはTypescriptでのみ理解されるため、Jsコンパイル時には１つのファイルにバンドルする必要がある。
+・依存関係の登録には [/// <reference path="ファイル名"/>]でインポートしてあげる。これは Typescript 独自が理解できる
 
-　そのため、tsconfig.jsonの「outFile」をOnにして階層、ファイルを指定すること
+・分割した namespace は Typescript でのみ理解されるため、Js コンパイル時には１つのファイルにバンドルする必要がある。
 
-・Object指向で、クラスを使用している
+そのため、tsconfig.json の「outFile」を On にして階層、ファイルを指定すること。
 
-・Projectが追加された、場所を変更された状態を管理する方法が上手い。レンダリングできるようにListenerとして関数をConstructorの中で渡しておいて、再度走るようにしている
+また、module を"amd"にすること。
+
+・Object 指向で、クラスを使用している
+
+・Project が追加された、場所を変更された状態を管理する方法が上手い。レンダリングできるように Listener として関数を Constructor の中で渡しておいて、再度走るようにしている
+
+🔸ESmodule
+
+・ES6 の export/import で定義
+
+・tsconfig の設定。「①module: ES2015 ②outFile の設定は Off にして、src と同じフォルダ構成」
+
+・html の src タグの属性に「type= "module"」を設定。これは ES6 の export/import モジュールを使用するために。
