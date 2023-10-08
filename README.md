@@ -87,3 +87,7 @@
 ・特徴「① バンドルの生成で、HTTP リクエストを少なくする。② ミニファイされたコードになる ③ ビルドステップを簡単にカスタマイズ。例えば開発サーバーなど」
 
 ・インストールしたもの「webpack / webpack-cli / webpack-dev-server / typescript / ts-loader 」
+
+・webpach.config.js を package.json と同じ階層に置く。
+
+・生成されたファイルはディスクではなく、メモリに一時的に保存されるため、更新しても新しい bundle ファイルを見に行けない。そのため publicpath を指定する。
