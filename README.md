@@ -91,3 +91,11 @@
 ・webpach.config.js を package.json と同じ階層に置く。
 
 ・生成されたファイルはディスクではなく、メモリに一時的に保存されるため、更新しても新しい bundle ファイルを見に行けない。そのため publicpath を指定する。
+
+## Section12 3rd-party-library
+
+・Js のライブラリーをインストールしても typescript はその定義がどこにあるか見つけることができない。例）npm i lodash
+
+・型定義がされている 3rd-party-library をインストールする必要があり、「type lodash」などで調べて誰かが型定義ファイル（.d.ts）を作っていないかを確認する。
+
+・Global 変数などを読み込みたい際は、強制的に、「declare」で typescript に伝えることができる。
