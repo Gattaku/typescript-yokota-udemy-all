@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import getGoogle from "./api/getAddress";
 
 declare const google: any;
@@ -40,7 +40,8 @@ const submitHandler = async (event: Event) => {
   //     console.log(err);
   //   });
 
-  const result = await getGoogle.getAddress(params);
+  const result: AxiosResponse<GoogleGeocodingResponse> =
+    await getGoogle.getAddress(params);
   if (result.data.status !== "OK") {
     throw new Error("座標を取得できませんでした。");
   }

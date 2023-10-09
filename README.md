@@ -101,3 +101,9 @@
 ・Global 変数などを読み込みたい際は、強制的に、「declare」で typescript に伝えることができる。
 
 ・classValidate はめっちゃくちゃ強力。デコレータを設定するだけで、あらゆるバリデーションができる。usage は github 上に公開されている。
+
+## Section13 google map
+
+・Google の地図を取得する方法が書いてある。見るべきサイトは「google geocoding api / google js maps」
+
+・ジェネリック型を上手く利用して、補完が効くようにしてある。すごい。
