@@ -99,3 +99,5 @@
 ・型定義がされている 3rd-party-library をインストールする必要があり、「type lodash」などで調べて誰かが型定義ファイル（.d.ts）を作っていないかを確認する。
 
 ・Global 変数などを読み込みたい際は、強制的に、「declare」で typescript に伝えることができる。
+
+・classValidate はめっちゃくちゃ強力。デコレータを設定するだけで、あらゆるバリデーションができる。usage は github 上に公開されている。
