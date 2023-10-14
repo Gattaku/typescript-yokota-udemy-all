@@ -117,3 +117,11 @@
 ・useState の set 関数は「非同期処理」のため、元の値が確実に前の状態を表しているかは不明
 
 そのため、Set 関数自体に、setTod((前の状態を表す Temp 変数)=>{})にすると確実に、前の状態を使用できる。
+
+## Section15 nodejs typescript
+
+・ts-node を Global にインストールして、「ts-node app.ts」で実行すると、1️⃣TS→JS への変換 2️⃣node app.js が自動で実行される。
+
+・req の型：express.Request, res の型：express.Response, next の型：express.Nextfunction . ただし、長いので、Requesthandler で定義することも可能
+
+（App.ts or ./controller/todos.ts を確認）
